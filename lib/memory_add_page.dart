@@ -7,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'take_video_page.dart';
 
+import 'package:honu_app/time_message_page.dart';
+
 class MemoryAddPage extends StatefulWidget {
   @override
   _MemoryAddPageState createState() => _MemoryAddPageState();
@@ -48,14 +50,23 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
               widthFactor: 1.0,
               alignment: Alignment.center,
               child: GestureDetector(
-                child: Text("キャンセル", style: TextStyle(color: Colors.blue)),
+                child: Text("キャンセル", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
                 onTap: (){
                   Navigator.of(context).pop();
                 },
               )
           ),
           middle: Text(titles[_sliding]),
-          trailing: Text("次へ", style: TextStyle(color: Colors.blue)),
+          trailing: GestureDetector(
+            child: Text("次へ", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none),),
+            onTap: (){
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => TimeMessagePage()
+                )
+              );
+            },
+          ),
         ),
         child: Stack(
           children: [
