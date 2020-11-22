@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart' as locate;
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:provider/provider.dart';
+import 'package:circular_countdown_timer/circular_countdown_timer.dart';
+
+import 'package:honu_app/with_people_page.dart';
+import 'package:honu_app/with_people_data.dart';
 
 class SaveFormData{
   String title;
@@ -63,6 +68,8 @@ class _SaveFormPageState extends State<SaveFormPage> {
   //住所が入る
   List<Placemark> _placeMarks;
 
+  CountDownController _controller = CountDownController();
+
   @override
   void initState() {
     super.initState();
@@ -80,6 +87,10 @@ class _SaveFormPageState extends State<SaveFormPage> {
         "",
         true,
     );
+
+    context.read<PeopleData>().clearPeople();
+    //print("test" + _member.peopleData[]);
+
 
     _textEditingController = TextEditingController(text: _saveFormData.title);
     _titleLength = _saveFormData.title.length;
@@ -206,7 +217,7 @@ class _SaveFormPageState extends State<SaveFormPage> {
           onTap: (){
             Navigator.of(context).push(
                 MaterialPageRoute(
-                    builder: (context) => SaveFormPage()
+                    builder: (context) => WithPeoplePage()
                 )
             );
           },
@@ -321,52 +332,68 @@ class _SaveFormPageState extends State<SaveFormPage> {
                     color: Colors.grey,
                   ),
                   //一緒にいた人
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if(_saveFormData.withPeople.isNotEmpty)
-                            Padding(
-                              padding: EdgeInsets.only(left: 20.0, top: 5.0),
-                              child: Text("一緒にいた人", style: TextStyle(color: Colors.grey,fontSize: 12.0)),
-                            ),
-                          if(_saveFormData.withPeople.isNotEmpty)
-                            Padding(
-                              padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  for(int i=0; i< _saveFormData.withPeople.length; i++)
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 10.0),
-                                      child: _buildWith(_saveFormData.withPeople[i]),
-                                    ),
-                                ],
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if(_saveFormData.withPeople.isNotEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(left: 20.0, top: 5.0),
+                                child: Text("一緒にいた人", style: TextStyle(color: Colors.grey,fontSize: 12.0)),
                               ),
-                            ),
-                          if(_saveFormData.withPeople.isEmpty)
-                            Padding(
-                              padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
-                              child: Text("一緒にいた人を追加", style: TextStyle(color: Colors.black, fontSize: 16.0),),
-                            ),
-                        ],
-                      ),
-                      Expanded(
-                        child: Container(
-                            child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 10.0),
-                                  child: RotatedBox(
-                                    quarterTurns: 1,
-                                    child: Icon(Icons.chevron_right, size: 36.0, color: Colors.grey,),
-                                  ),
-                                )
-                            )
+                            if(_saveFormData.withPeople.isNotEmpty)
+                              Container(
+                                constraints: BoxConstraints.tightForFinite(width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width/10),
+                                margin: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
+                                child: Wrap(
+                                  spacing: 10.0,
+                                  runSpacing: 10.0,
+                                  //crossAxisAlignment: CrossAxisAlignment.start,
+                                  //direction: Axis.horizontal,
+                                  children: [
+                                    for(int i=0; i< _saveFormData.withPeople.length; i++)
+                                      _buildWith(_saveFormData.withPeople[i]),
+                                  ],
+                                ),
+                              ),
+                            if(_saveFormData.withPeople.isEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
+                                child: Text("一緒にいた人を追加", style: TextStyle(color: Colors.black, fontSize: 16.0),),
+                              ),
+                          ],
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          child: Container(
+                              child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 10.0),
+                                    child: RotatedBox(
+                                      quarterTurns: 1,
+                                      child: Icon(Icons.chevron_right, size: 36.0, color: Colors.grey,),
+                                    ),
+                                  )
+                              )
+                          ),
+                        ),
+                      ],
+                    ),
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => WithPeoplePage()
+                          )
+                      ).then((value){
+                        setState(() {
+                          _saveFormData.withPeople = context.read<PeopleData>().peopleData;
+                          print("test" + context.read<PeopleData>().peopleData.toString());
+                        });
+                      });
+                    },
                   ),
                   Divider(
                     color: Colors.grey,
@@ -440,6 +467,89 @@ class _SaveFormPageState extends State<SaveFormPage> {
                       softWrap: true,
                     ),
                   ),
+                  CircularCountDownTimer(
+                    // Countdown duration in Seconds
+                    duration: 10,
+
+                    // Controller to control (i.e Pause, Resume, Restart) the Countdown
+                    controller: _controller,
+
+                    // Width of the Countdown Widget
+                    width: MediaQuery.of(context).size.width / 2,
+
+                    // Height of the Countdown Widget
+                    height: MediaQuery.of(context).size.height / 2,
+
+                    // // Default Color for Countdown Timer
+                    shaderColor: LinearGradient(
+                      colors: <Color>[
+                        Color(0xffffffff),
+                        Color(0xffffffff),
+                      ],
+                    ).createShader(
+                      Rect.fromLTWH(
+                        0.0,
+                        0.0,
+                        250.0,
+                        70.0,
+                      ),
+                    ),
+
+                    // Filling Color for Countdown Timer
+                    iniColor: LinearGradient(
+                      colors: <Color>[
+                        Color(0xff1A2980),
+                        Color(0xff26D0CE),
+                      ],
+                    ).createShader(
+                      Rect.fromLTWH(
+                        0.0,
+                        0.0,
+                        250.0,
+                        70.0,
+                      ),
+                    ),
+
+                    // Filling Color for Countdown Timer
+                    // shaderColor: LinearGradient(
+                    //   colors: <Color>[
+                    //     Color(0xff1A2980),
+                    //     Color(0xff26D0CE),
+                    //   ],
+                    // ).createShader(
+                    //   Rect.fromLTWH(
+                    //     0.0,
+                    //     0.0,
+                    //     250.0,
+                    //     70.0,
+                    //   ),
+                    // ),
+
+                    // Background Color for Countdown Widget
+                    backgroundColor: null,
+
+                    // Border Thickness of the Countdown Circle
+                    strokeWidth: 5.0,
+
+                    // Text Style for Countdown Text
+                    textStyle: TextStyle(
+                        fontSize: 22.0, color: Colors.black, fontWeight: FontWeight.bold),
+
+                    // true for reverse countdown (max to 0), false for forward countdown (0 to max)
+                    isReverse: false,
+
+                    // true for reverse animation, false for forward animation
+                    isReverseAnimation: false,
+
+                    // Optional [bool] to hide the [Text] in this widget.
+                    isTimerTextShown: true,
+
+                    // Function which will execute when the Countdown Ends
+                    onComplete: () {
+                      // Here, do whatever you want
+                      print('Countdown Ended');
+                    },
+                  ),
 
                 ],
               ),
@@ -471,6 +581,7 @@ class _SaveFormPageState extends State<SaveFormPage> {
                 padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
                 child: Text(title, style: TextStyle(color: Colors.black, fontSize: 16.0),),
               ),
+
           ],
         ),
         Expanded(
