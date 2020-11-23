@@ -8,7 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 
 import 'package:honu_app/with_people_page.dart';
-import 'package:honu_app/with_people_data.dart';
+import 'package:honu_app/data/with_people_data.dart';
+import 'package:honu_app/data/picture_data.dart';
 
 class SaveFormData{
   String title;
@@ -44,6 +45,8 @@ class _SaveFormPageState extends State<SaveFormPage> {
 
   locate.Location location = locate.Location();
 
+  List<PictureData> _pictureData = [PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false)];
+
   List<String> _categoryList = [
     "イベント",
     "ランチ",
@@ -73,7 +76,7 @@ class _SaveFormPageState extends State<SaveFormPage> {
   @override
   void initState() {
     super.initState();
-
+    _pictureData = context.read<PictureDataProvider>().pictureData;
     _getLocation(context);
     DateTime today = DateTime.now();
     _saveFormData = SaveFormData(
@@ -213,7 +216,7 @@ class _SaveFormPageState extends State<SaveFormPage> {
         ),
         middle: Text("保存設定"),
         trailing: GestureDetector(
-          child: Text("次へ", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
+          child: Text("保存", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
           onTap: (){
             Navigator.of(context).push(
                 MaterialPageRoute(
@@ -239,7 +242,7 @@ class _SaveFormPageState extends State<SaveFormPage> {
                         margin: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage("images/penguin.jpg"),
+                            image: AssetImage(_pictureData[0].picturePath),
                             fit: BoxFit.cover,
                           ),
                           borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -446,6 +449,7 @@ class _SaveFormPageState extends State<SaveFormPage> {
                       !_saveFormData.publicFlag?
                       GestureDetector(
                         child: Text("公開", style: TextStyle(fontSize: 18.0),),
+                        onTap: (){_handleRadio(true);},
                       ):
                       Text("公開", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),
                       Text("　"),
@@ -456,7 +460,10 @@ class _SaveFormPageState extends State<SaveFormPage> {
                         onChanged: _handleRadio,
                       ),
                       _saveFormData.publicFlag?
-                      Text("非公開", style: TextStyle(fontSize: 18.0),):
+                      GestureDetector(
+                        child: Text("非公開", style: TextStyle(fontSize: 18.0),),
+                        onTap: (){_handleRadio(false);},
+                      ):
                       Text("非公開", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),
                     ],
                   ),
@@ -467,90 +474,6 @@ class _SaveFormPageState extends State<SaveFormPage> {
                       softWrap: true,
                     ),
                   ),
-                  CircularCountDownTimer(
-                    // Countdown duration in Seconds
-                    duration: 10,
-
-                    // Controller to control (i.e Pause, Resume, Restart) the Countdown
-                    controller: _controller,
-
-                    // Width of the Countdown Widget
-                    width: MediaQuery.of(context).size.width / 2,
-
-                    // Height of the Countdown Widget
-                    height: MediaQuery.of(context).size.height / 2,
-
-                    // // Default Color for Countdown Timer
-                    shaderColor: LinearGradient(
-                      colors: <Color>[
-                        Color(0xffffffff),
-                        Color(0xffffffff),
-                      ],
-                    ).createShader(
-                      Rect.fromLTWH(
-                        0.0,
-                        0.0,
-                        250.0,
-                        70.0,
-                      ),
-                    ),
-
-                    // Filling Color for Countdown Timer
-                    iniColor: LinearGradient(
-                      colors: <Color>[
-                        Color(0xff1A2980),
-                        Color(0xff26D0CE),
-                      ],
-                    ).createShader(
-                      Rect.fromLTWH(
-                        0.0,
-                        0.0,
-                        250.0,
-                        70.0,
-                      ),
-                    ),
-
-                    // Filling Color for Countdown Timer
-                    // shaderColor: LinearGradient(
-                    //   colors: <Color>[
-                    //     Color(0xff1A2980),
-                    //     Color(0xff26D0CE),
-                    //   ],
-                    // ).createShader(
-                    //   Rect.fromLTWH(
-                    //     0.0,
-                    //     0.0,
-                    //     250.0,
-                    //     70.0,
-                    //   ),
-                    // ),
-
-                    // Background Color for Countdown Widget
-                    backgroundColor: null,
-
-                    // Border Thickness of the Countdown Circle
-                    strokeWidth: 5.0,
-
-                    // Text Style for Countdown Text
-                    textStyle: TextStyle(
-                        fontSize: 22.0, color: Colors.black, fontWeight: FontWeight.bold),
-
-                    // true for reverse countdown (max to 0), false for forward countdown (0 to max)
-                    isReverse: false,
-
-                    // true for reverse animation, false for forward animation
-                    isReverseAnimation: false,
-
-                    // Optional [bool] to hide the [Text] in this widget.
-                    isTimerTextShown: true,
-
-                    // Function which will execute when the Countdown Ends
-                    onComplete: () {
-                      // Here, do whatever you want
-                      print('Countdown Ended');
-                    },
-                  ),
-
                 ],
               ),
             ),

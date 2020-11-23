@@ -2,16 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 
-import 'with_people_data.dart';
+import 'data/with_people_data.dart';
+import 'package:honu_app/data/picture_data.dart';
+import 'package:honu_app/data/cameraData.dart';
 import 'memory_add_page.dart';
 
-void main() {
+import 'package:camera/camera.dart';
+
+List<CameraDescription> cameras = [];
+
+void main() async{
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    print(e.code + e.description);
+  }
   runApp(
     /// Providers are above [MyApp] instead of inside it, so that tests
     /// can use [MyApp] while mocking the providers
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PeopleData()),
+        ChangeNotifierProvider(create: (_) => PictureDataProvider()),
+        ChangeNotifierProvider(create: (_) => TimeMessageDataProvider()),
+        ChangeNotifierProvider(create: (_) => CameraDataProvider()),
       ],
       child: MyApp(),
     ),
@@ -24,7 +39,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Color(0xffFF9882),
+        accentColor: Color(0xffFF9882),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(),
@@ -41,6 +57,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<CameraDataProvider>().addCameraData(cameras);
+  }
 
   void _incrementCounter() {
     setState(() {

@@ -4,10 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 import 'take_video_page.dart';
 
-import 'package:honu_app/time_message_page.dart';
+import 'package:honu_app/processing_picture_page.dart';
+import 'package:honu_app/library_page.dart';
+import 'package:honu_app/data/picture_data.dart';
+
 
 class MemoryAddPage extends StatefulWidget {
   @override
@@ -21,7 +25,7 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
   List<CameraDescription> cameras = [];
 
   //appbar名
-  List<String> titles = ["ライブラリ", "動画", "写真"];
+  List<String> titles = ["アルバム", "撮影"];
   //下にあるメニューの値
   int _sliding = 1;
 
@@ -52,6 +56,7 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
               child: GestureDetector(
                 child: Text("キャンセル", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
                 onTap: (){
+                  context.read<PictureDataProvider>().clearPictureData();
                   Navigator.of(context).pop();
                 },
               )
@@ -60,11 +65,14 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
           trailing: GestureDetector(
             child: Text("次へ", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none),),
             onTap: (){
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => TimeMessagePage()
-                )
-              );
+              if(context.read<PictureDataProvider>().pictureData[0].picturePath != null){
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ProcessingPicturePage(),
+                    )
+                );
+              }
             },
           ),
         ),
@@ -76,27 +84,28 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: Container(
-                color: Colors.black,
+                color: Theme.of(context).canvasColor,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     margin: EdgeInsets.only(bottom: 20.0),
                     height: MediaQuery.of(context).size.height/10 - 20.0,
-                    width: MediaQuery.of(context).size.width,
+                    width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width/ 5,
                     child: CupertinoSlidingSegmentedControl(
-                      thumbColor: Colors.grey[800],
+                      thumbColor: Theme.of(context).primaryColor,
+                      backgroundColor:  Theme.of(context).canvasColor,
                       children: {
                         0: Container(
                           padding: EdgeInsets.symmetric(vertical: 9.0),
-                          child: Text("ライブラリ", style: TextStyle(color: Colors.white, fontSize: 14.0, decoration: TextDecoration.none),),
+                          child: _sliding == 0?
+                            Text("アルバム", style: TextStyle(color: Colors.white, fontSize: 14.0, decoration: TextDecoration.none),):
+                            Text("アルバム", style: TextStyle(color: Colors.grey, fontSize: 14.0, decoration: TextDecoration.none),),
                         ),
                         1: Container(
                           padding: EdgeInsets.symmetric(vertical: 9.0),
-                          child: Text("動画", style: TextStyle(color: Colors.white, fontSize: 14.0, decoration: TextDecoration.none),),
-                        ),
-                        2: Container(
-                          padding: EdgeInsets.symmetric(vertical: 9.0),
-                          child: Text("写真", style: TextStyle(color: Colors.white, fontSize: 14.0, decoration: TextDecoration.none),),
+                          child: _sliding == 1?
+                            Text("撮影", style: TextStyle(color: Colors.white, fontSize: 14.0, decoration: TextDecoration.none),):
+                            Text("撮影", style: TextStyle(color: Colors.grey, fontSize: 14.0, decoration: TextDecoration.none),),
                         ),
                       },
                       groupValue: _sliding,
@@ -111,9 +120,9 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
               ),
             ),
             Positioned(
-              top: 0,
+              top: 85,
               left: 0,
-              height: MediaQuery.of(context).size.height - MediaQuery.of(context).size.height/10,
+              height: MediaQuery.of(context).size.height - MediaQuery.of(context).size.height/5,
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
@@ -135,10 +144,7 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
     Widget page = Container();
     switch(num){
       case 0:
-        page = Container(
-          color: Colors.orange,
-          child: Text("1"),
-        );
+        page = LibraryPage();
         break;
       case 1:
       //権限の確認　自動でやってくれるって言ってたのにやってくれないなんでだってばよ
@@ -159,7 +165,7 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
           future: getCamera(),
           builder: (context, snapshot){
             if(cameras.length > 0){
-              return TakeVideoPage(cameras: cameras);
+              return TakeVideoPage(cameras: cameras,);
             }else{
               print("penguin");
               return Container(
@@ -170,12 +176,6 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
           }
         );
         //page = TakeVideoPage(camera: cameras.first);
-        break;
-      case 2:
-        page = Container(
-          color: Colors.greenAccent,
-          child: Text("3"),
-        );
         break;
     }
     return page;
