@@ -1,15 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:location/location.dart' as locate;
+import 'package:http/http.dart' as http;
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:provider/provider.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
+import 'package:intl/intl.dart';
 
 import 'package:honu_app/with_people_page.dart';
 import 'package:honu_app/data/with_people_data.dart';
 import 'package:honu_app/data/picture_data.dart';
+import 'package:honu_app/save_complete_page.dart';
+import 'package:honu_app/network/api.dart';
 
 class SaveFormData{
   String title;
@@ -70,8 +76,6 @@ class _SaveFormPageState extends State<SaveFormPage> {
 
   //住所が入る
   List<Placemark> _placeMarks;
-
-  CountDownController _controller = CountDownController();
 
   @override
   void initState() {
@@ -137,10 +141,10 @@ class _SaveFormPageState extends State<SaveFormPage> {
   void _handleRadio(bool e) => setState(() {_saveFormData.publicFlag = e;});
 
   //タイトルの文字数を計算
-  _onChangedTitle(){
+  _onChangedTitle(String title){
     setState(() {
-      _titleLength = _textEditingController.text.length;
-      _saveFormData.title = _textEditingController.text;
+      _titleLength = title.length;
+      _saveFormData.title = title;
     });
   }
 
@@ -200,6 +204,55 @@ class _SaveFormPageState extends State<SaveFormPage> {
     );
   }
 
+  //保存
+  void addMemory() async{
+
+    if(_saveFormData.title == "" || _saveFormData.categoryName == ""){
+      print("入力しろ");
+      return null;
+    }
+
+    //category_nameからcategory_idを求める
+    //誉は浜で捨てたのでゴリ押しで求める
+    int categoryId = _categoryList.indexWhere((element) => element == _saveFormData.categoryName);
+    categoryId++;
+    String videoPath = context.read<TimeMessageDataProvider>().timeMessageData.videoPath;
+    print("categoryID" + categoryId.toString());
+
+    //データベースと合わせるためフォーマットする
+    String noticeData = DateFormat('yy-MM-dd HH:mm').format(_saveFormData.noticeDate);
+
+    List<String> picturePaths = [];
+    List<String> videoPaths = [];
+    for(int i=0;i<_pictureData.length; i++){
+      picturePaths.add(_pictureData[i].picturePath);
+      videoPaths.add(_pictureData[i].videoPath);
+    }
+
+    final memoryData = {
+      "memory_title" : _saveFormData.title,
+      "public_flag" : _saveFormData.publicFlag,
+      "x" : _saveFormData.x,
+      "y" : _saveFormData.y,
+      "address" : _saveFormData.address,
+      "thumbnail_path" : _pictureData[0].picturePath,
+      "user_id" : 1,
+      "category_id" : categoryId,
+      "memory_music" : _saveFormData.musicName,
+      "time_message_video_path" : videoPath,
+      "reservation_at" : noticeData,
+      "member" : _saveFormData.withPeople,
+      "picture_paths": picturePaths,
+      "video_paths" : videoPaths
+    };
+
+    //print(memoryData);
+    //print("a" + jsonEncode(memoryData).toString());
+
+    http.Response res = await Network().postData(memoryData, "memory/store");
+    print("result" + res.body.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -218,155 +271,211 @@ class _SaveFormPageState extends State<SaveFormPage> {
         trailing: GestureDetector(
           child: Text("保存", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
           onTap: (){
+            addMemory();
             Navigator.of(context).push(
                 MaterialPageRoute(
-                    builder: (context) => WithPeoplePage()
+                    builder: (context) => SaveCompletePage()
                 )
             );
           },
         ),
       ),
-      child: Form(
-        key: _formKey,
-        child: SafeArea(
-          child: Scaffold(
-            body: Container(
-              color: Colors.white,
-              child: ListView(
-                children: [
-                  //タイトル
-                  Row(
-                    children: [
-                      Container(
-                        constraints: BoxConstraints.expand(height: 90.0 , width: 90.0),
-                        margin: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage(_pictureData[0].picturePath),
-                            fit: BoxFit.cover,
+      child: GestureDetector(
+        onTap: (){
+          FocusScope.of(context).unfocus();
+        },
+        child: Form(
+          key: _formKey,
+          child: SafeArea(
+            child: Scaffold(
+              body: Container(
+                color: Colors.white,
+                child: ListView(
+                  children: [
+                    //タイトル
+                    Row(
+                      children: [
+                        Container(
+                          constraints: BoxConstraints.expand(height: 90.0 , width: 90.0),
+                          margin: EdgeInsets.only(left: 20.0, top: 20.0, bottom: 10.0),
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(_pictureData[0].picturePath),
+                              fit: BoxFit.cover,
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(20.0)),
                           ),
-                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
                         ),
-                      ),
-                      Column(
-                        children: [
-                          Container(
-                            constraints: BoxConstraints.expand(height: 100.0, width: MediaQuery.of(context).size.width - 110),
-                            margin: EdgeInsets.only(top: 20.0),
-                            padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                            child: CupertinoTextField(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.white),
+                        Column(
+                          children: [
+                            Container(
+                              constraints: BoxConstraints.expand(height: 100.0, width: MediaQuery.of(context).size.width - 110),
+                              margin: EdgeInsets.only(top: 20.0),
+                              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                              child: CupertinoTextField(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white),
+                                ),
+                                controller: _textEditingController,
+                                placeholder: "タイトルを書く",
+                                style: TextStyle(color: Colors.black, fontSize: 16.0, fontWeight: FontWeight.bold),
+                                keyboardType: TextInputType.multiline,
+                                maxLines: 2,
+                                onChanged: (value){
+                                  _onChangedTitle(value);
+                                },
                               ),
-                              controller: _textEditingController,
-                              placeholder: "タイトルを書く",
-                              style: TextStyle(color: Colors.black, fontSize: 16.0, fontWeight: FontWeight.bold),
-                              keyboardType: TextInputType.multiline,
-                              maxLines: 2,
-                              onChanged: _onChangedTitle(),
                             ),
-                          ),
-                          Container(
-                            constraints: BoxConstraints.expand(height: 30.0, width: MediaQuery.of(context).size.width - 110),
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 20.0),
-                              child:  Text(_titleLength.toString() + "/20", style: TextStyle(color: Colors.grey,fontSize: 12.0), textAlign: TextAlign.right,),
+                            Container(
+                              constraints: BoxConstraints.expand(height: 30.0, width: MediaQuery.of(context).size.width - 110),
+                              child: Padding(
+                                padding: EdgeInsets.only(right: 20.0),
+                                child:  Text(_titleLength.toString() + "/20", style: TextStyle(color: Colors.grey,fontSize: 12.0), textAlign: TextAlign.right,),
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                  ),
-                  //通知予定日
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    child: _buildListTile(
-                        "通知予定日",
-                        _saveFormData.noticeDate.year.toString()+"/"+_saveFormData.noticeDate.month.toString()+"/"+_saveFormData.noticeDate.day.toString(),
-                        0 ,
-                        true
+                          ],
+                        )
+                      ],
                     ),
-                    onTap: (){
-                      _selectDate(context);
-                    },
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                  ),
-                  //位置情報
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(left: 20.0, top: 5.0),
-                            child: Text("位置情報", style: TextStyle(color: Colors.grey,fontSize: 12.0)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 20.0, top: 5.0,),
-                            child: Text(_saveFormData.address, style: TextStyle(color: Colors.black, fontSize: 16.0),),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 20.0,bottom: 5.0),
-                            child: Text("x:" + _saveFormData.x.toStringAsFixed(2) + "　y:" + _saveFormData.y.toStringAsFixed(2), style: TextStyle(color: Colors.black, fontSize: 14.0),),
-                          ),
-                        ],
+                    Divider(
+                      color: Colors.grey,
+                    ),
+                    //通知予定日
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      child: _buildListTile(
+                          "通知予定日",
+                          _saveFormData.noticeDate.year.toString()+"/"+_saveFormData.noticeDate.month.toString()+"/"+_saveFormData.noticeDate.day.toString(),
+                          0 ,
+                          true
                       ),
-                    ],
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                  ),
-                  //カテゴリー
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    child: _saveFormData.categoryName=="" ?
-                      _buildListTile("カテゴリーを追加", _saveFormData.categoryName, 0, false) :
-                      _buildListTile("カテゴリーを追加", _saveFormData.categoryName, 0, true),
-                    onTap: (){
-                      _onShowCategoryPicker();
-                    },
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                  ),
-                  //一緒にいた人
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    child: Row(
+                      onTap: (){
+                        _selectDate(context);
+                      },
+                    ),
+                    Divider(
+                      color: Colors.grey,
+                    ),
+                    //位置情報
+                    Row(
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if(_saveFormData.withPeople.isNotEmpty)
-                              Padding(
-                                padding: EdgeInsets.only(left: 20.0, top: 5.0),
-                                child: Text("一緒にいた人", style: TextStyle(color: Colors.grey,fontSize: 12.0)),
-                              ),
-                            if(_saveFormData.withPeople.isNotEmpty)
-                              Container(
-                                constraints: BoxConstraints.tightForFinite(width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width/10),
-                                margin: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
-                                child: Wrap(
-                                  spacing: 10.0,
-                                  runSpacing: 10.0,
-                                  //crossAxisAlignment: CrossAxisAlignment.start,
-                                  //direction: Axis.horizontal,
-                                  children: [
-                                    for(int i=0; i< _saveFormData.withPeople.length; i++)
-                                      _buildWith(_saveFormData.withPeople[i]),
-                                  ],
+                            Padding(
+                              padding: EdgeInsets.only(left: 20.0, top: 5.0),
+                              child: Text("位置情報", style: TextStyle(color: Colors.grey,fontSize: 12.0)),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 20.0, top: 5.0,),
+                              child: Text(_saveFormData.address, style: TextStyle(color: Colors.black, fontSize: 16.0),),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 20.0,bottom: 5.0),
+                              child: Text("x:" + _saveFormData.x.toStringAsFixed(2) + "　y:" + _saveFormData.y.toStringAsFixed(2), style: TextStyle(color: Colors.black, fontSize: 14.0),),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.grey,
+                    ),
+                    //カテゴリー
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      child: _saveFormData.categoryName=="" ?
+                      _buildListTile("カテゴリーを追加", _saveFormData.categoryName, 0, false) :
+                      _buildListTile("カテゴリーを追加", _saveFormData.categoryName, 0, true),
+                      onTap: (){
+                        _onShowCategoryPicker();
+                      },
+                    ),
+                    Divider(
+                      color: Colors.grey,
+                    ),
+                    //一緒にいた人
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if(_saveFormData.withPeople.isNotEmpty)
+                                Padding(
+                                  padding: EdgeInsets.only(left: 20.0, top: 5.0),
+                                  child: Text("一緒にいた人", style: TextStyle(color: Colors.grey,fontSize: 12.0)),
                                 ),
-                              ),
-                            if(_saveFormData.withPeople.isEmpty)
-                              Padding(
-                                padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
-                                child: Text("一緒にいた人を追加", style: TextStyle(color: Colors.black, fontSize: 16.0),),
-                              ),
+                              if(_saveFormData.withPeople.isNotEmpty)
+                                Container(
+                                  constraints: BoxConstraints.tightForFinite(width: MediaQuery.of(context).size.width - MediaQuery.of(context).size.width/10),
+                                  margin: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
+                                  child: Wrap(
+                                    spacing: 10.0,
+                                    runSpacing: 10.0,
+                                    //crossAxisAlignment: CrossAxisAlignment.start,
+                                    //direction: Axis.horizontal,
+                                    children: [
+                                      for(int i=0; i< _saveFormData.withPeople.length; i++)
+                                        _buildWith(_saveFormData.withPeople[i]),
+                                    ],
+                                  ),
+                                ),
+                              if(_saveFormData.withPeople.isEmpty)
+                                Padding(
+                                  padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
+                                  child: Text("一緒にいた人を追加", style: TextStyle(color: Colors.black, fontSize: 16.0),),
+                                ),
+                            ],
+                          ),
+                          Expanded(
+                            child: Container(
+                                child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: 10.0),
+                                      child: RotatedBox(
+                                        quarterTurns: 1,
+                                        child: Icon(Icons.chevron_right, size: 36.0, color: Colors.grey,),
+                                      ),
+                                    )
+                                )
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: (){
+                        Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => WithPeoplePage()
+                            )
+                        ).then((value){
+                          setState(() {
+                            _saveFormData.withPeople = context.read<PeopleData>().peopleData;
+                            print("test" + context.read<PeopleData>().peopleData.toString());
+                          });
+                        });
+                      },
+                    ),
+                    Divider(
+                      color: Colors.grey,
+                    ),
+                    //音楽
+                    Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _saveFormData.musicName == "" ?
+                            Padding(
+                              padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
+                              child: Text("音楽を設定", style: TextStyle(color: Colors.black, fontSize: 16.0),),
+                            ):
+                            Padding(
+                              padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
+                              child: Text(_saveFormData.musicName, style: TextStyle(color: Colors.black, fontSize: 16.0),),
+                            ),
                           ],
                         ),
                         Expanded(
@@ -385,96 +494,48 @@ class _SaveFormPageState extends State<SaveFormPage> {
                         ),
                       ],
                     ),
-                    onTap: (){
-                      Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) => WithPeoplePage()
-                          )
-                      ).then((value){
-                        setState(() {
-                          _saveFormData.withPeople = context.read<PeopleData>().peopleData;
-                          print("test" + context.read<PeopleData>().peopleData.toString());
-                        });
-                      });
-                    },
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                  ),
-                  //音楽
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _saveFormData.musicName == "" ?
-                          Padding(
-                            padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
-                            child: Text("音楽を設定", style: TextStyle(color: Colors.black, fontSize: 16.0),),
-                          ):
-                          Padding(
-                            padding: EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
-                            child: Text(_saveFormData.musicName, style: TextStyle(color: Colors.black, fontSize: 16.0),),
-                          ),
-                        ],
-                      ),
-                      Expanded(
-                        child: Container(
-                            child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 10.0),
-                                  child: RotatedBox(
-                                    quarterTurns: 1,
-                                    child: Icon(Icons.chevron_right, size: 36.0, color: Colors.grey,),
-                                  ),
-                                )
-                            )
-                        ),
-                      ),
-                    ],
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Radio(
-                        activeColor: Color(0xffF09794),
-                        value: true,
-                        groupValue: _saveFormData.publicFlag,
-                        onChanged: _handleRadio,
-                      ),
-                      !_saveFormData.publicFlag?
-                      GestureDetector(
-                        child: Text("公開", style: TextStyle(fontSize: 18.0),),
-                        onTap: (){_handleRadio(true);},
-                      ):
-                      Text("公開", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),
-                      Text("　"),
-                      Radio(
-                        activeColor: Color(0xffF09794),
-                        value: false,
-                        groupValue: _saveFormData.publicFlag,
-                        onChanged: _handleRadio,
-                      ),
-                      _saveFormData.publicFlag?
-                      GestureDetector(
-                        child: Text("非公開", style: TextStyle(fontSize: 18.0),),
-                        onTap: (){_handleRadio(false);},
-                      ):
-                      Text("非公開", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),
-                    ],
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 50.0, right: 50.0),
-                    child: Text("※ 公開を選択すると他のアプリユーザーにもこの動画が閲覧できるようになります",
-                      style: TextStyle(color: Colors.grey,fontSize: 12.0),
-                      softWrap: true,
+                    Divider(
+                      color: Colors.grey,
                     ),
-                  ),
-                ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Radio(
+                          activeColor: Color(0xffF09794),
+                          value: true,
+                          groupValue: _saveFormData.publicFlag,
+                          onChanged: _handleRadio,
+                        ),
+                        !_saveFormData.publicFlag?
+                        GestureDetector(
+                          child: Text("公開", style: TextStyle(fontSize: 18.0),),
+                          onTap: (){_handleRadio(true);},
+                        ):
+                        Text("公開", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),
+                        Text("　"),
+                        Radio(
+                          activeColor: Color(0xffF09794),
+                          value: false,
+                          groupValue: _saveFormData.publicFlag,
+                          onChanged: _handleRadio,
+                        ),
+                        _saveFormData.publicFlag?
+                        GestureDetector(
+                          child: Text("非公開", style: TextStyle(fontSize: 18.0),),
+                          onTap: (){_handleRadio(false);},
+                        ):
+                        Text("非公開", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 50.0, right: 50.0),
+                      child: Text("※ 公開を選択すると他のアプリユーザーにもこの動画が閲覧できるようになります",
+                        style: TextStyle(color: Colors.grey,fontSize: 12.0),
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -73,7 +73,6 @@ class _WithPeoplePageState extends State<WithPeoplePage> {
       };
 
       print(data.toString());
-
       http.Response res = await Network().postData(data, "friend/store");
       print("result" + res.body.toString());
 
