@@ -329,6 +329,12 @@ class _SaveFormPageState extends State<SaveFormPage> {
     print("result" + res.body.toString());
     context.read<PictureDataProvider>().clearPictureData();
 
+    Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (context) => SaveCompletePage(categoryId: _categoryId, lat: _locationData.latitude, lon: _locationData.longitude,)
+        )
+    );
+
     return "1";
   }
 
@@ -354,11 +360,6 @@ class _SaveFormPageState extends State<SaveFormPage> {
           child: Text("保存", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
           onTap: () async{
             await addMemory();
-            Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => SaveCompletePage(categoryId: _categoryId, lat: _locationData.latitude, lon: _locationData.longitude,)
-                )
-            );
           },
         ),
       ),

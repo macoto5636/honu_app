@@ -120,7 +120,8 @@ class OtherVideoFinishPage extends StatelessWidget {
                   ),
                 ),
                 onTap: (){
-                  Navigator.popUntil(context, ModalRoute.withName("/"));
+                  //Navigator.popUntil(context, ModalRoute.withName("/home"));
+                  Navigator.of(context).pop();
                 },
               ),
             )
