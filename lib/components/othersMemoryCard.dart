@@ -21,16 +21,16 @@ class OthersMemoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 200,
-      width: 170,
+      width: 175,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Color(0xffCCD5DD).withOpacity(0.4),
             spreadRadius: 1.0,
-            blurRadius: 10.0,
-            offset: Offset(0, 5),
+            blurRadius: 13.0,
+            offset: Offset(0, 8),
           )
         ],
       ),
@@ -43,7 +43,8 @@ class OthersMemoryCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
               image: DecorationImage(
-                image: AssetImage(imagePath),
+                //image: AssetImage(imagePath),
+                image: NetworkImage(imagePath),
                 fit: BoxFit.cover
               )
             ),

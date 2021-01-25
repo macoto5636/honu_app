@@ -5,7 +5,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:honu_app/custom_timer_painter/circular_countdown_timer.dart';
 import 'package:camera/camera.dart';
 import 'package:honu_app/data/cameraData.dart';
 import 'package:honu_app/data/picture_data.dart';
@@ -13,7 +13,6 @@ import 'package:honu_app/processing_picture_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart' as videoThumbnail;
-import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:provider/provider.dart';
 
 import 'package:honu_app/time_message_page.dart';
@@ -38,7 +37,7 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
   //List<String> _picturePaths = []..length = 5;
   //List<PictureData> _pictureData = []..length = 5;
   //List<CameraDescription> cameras = [];
-  List<PictureData> _pictureData = [PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false)];
+  List<PictureData> _pictureData = [PictureData(null, false, null, false, true), PictureData(null, false, null, false, true), PictureData(null, false, null, false, true), PictureData(null, false, null, false, true), PictureData(null, false, null, false, true)];
   int _pictureNum = 0;
   //カメラのコントローラー
   CameraController _cameraController;
@@ -150,7 +149,7 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
           setState(() {
             //_picturePaths[_pictureNum] = filePath;
             context.read<PictureDataProvider>().addPictureData(
-                PictureData(filePath, false, null, true),
+                PictureData(filePath, false, null, true, true),
                 _pictureNum
             );
 
@@ -328,7 +327,7 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
 
     //リストに追加
     context.read<PictureDataProvider>().addPictureData(
-        PictureData(path, true, _videoPath, true),
+        PictureData(path, true, _videoPath, true, true),
         _pictureNum
     );
     setState(() {
@@ -456,7 +455,7 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
                       // Height of the Countdown Widget
                       height: 100.0,
                       // // Default Color for Countdown Timer
-                      iniColor: LinearGradient(
+                      shaderColor: LinearGradient(
                         colors: <Color>[
                           Color(0xffffffff),
                           Color(0xffffffff),
@@ -470,17 +469,18 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
                         ),
                       ),
                       // Filling Color for Countdown Timer
-                      shaderColor: LinearGradient(
+                      color: LinearGradient(
                         colors: <Color>[
-                          Color(0xffff7f7f),
+                          Color(0xffFF9882),
+                          Color(0xffF28080),
                           Color(0xffFFCD82),
                         ],
                       ).createShader(
                         Rect.fromLTWH(
                           0.0,
-                          0.0,
-                          255.0,
+                          50.0,
                           70.0,
+                          60.0,
                         ),
                       ),
                       // Background Color for Countdown Widget

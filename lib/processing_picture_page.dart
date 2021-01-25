@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:video_player/video_player.dart';
 import 'package:image/image.dart' as imgLib;
+import 'dart:io';
 
 import 'package:honu_app/time_message_page.dart';
 import 'package:honu_app/data/picture_data.dart';
@@ -20,7 +21,9 @@ class _ProcessingPicturePageState extends State<ProcessingPicturePage> {
   int _sliding = 0;
 
   //撮影したデータ
-  List<PictureData> _pictureData = [PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false), PictureData(null, false, null, false)];
+  List<PictureData> _pictureData = [PictureData(null, false, null, false, true), PictureData(null, false, null, false, true), PictureData(null, false, null, false, true), PictureData(null, false, null, false, true), PictureData(null, false, null, false, true)];
+  List<imgLib.Image> _processingPicture = [null, null, null, null, null];
+  List<VideoPlayerController> _videoControllers = [null, null, null, null, null];
 
   //選択しているデータのインデックス
   int _selectPictureData = 0;
@@ -29,6 +32,37 @@ class _ProcessingPicturePageState extends State<ProcessingPicturePage> {
   void initState() {
     super.initState();
     _pictureData = context.read<PictureDataProvider>().pictureData;
+
+    _videoPlayer();
+  }
+
+  Future<void> _videoPlayer() async{
+    //videoの設定
+    for(int i=0; i<_pictureData.length; i++){
+      if(_pictureData[i].videoFlag){
+        VideoPlayerController videoPlayerController = VideoPlayerController.file(File(_pictureData[i].videoPath));
+        setState(() {
+
+        });
+        await videoPlayerController.setLooping(true);
+        await videoPlayerController.initialize();
+        //print(_videoControllers[i].value.initialized);
+        _videoControllers[i] = videoPlayerController;
+      }
+    }
+    setState(() {
+
+    });
+  }
+
+  @override
+  void dispose() {
+    for(int i=0; i<_videoControllers.length; i++){
+      if(_videoControllers[i] != null){
+        _videoControllers[i].dispose();
+      }
+    }
+    super.dispose();
   }
 
 
@@ -61,7 +95,7 @@ class _ProcessingPicturePageState extends State<ProcessingPicturePage> {
       ),
       child: Stack(
         children: [
-          //写真表示
+          //写真表示or動画を表示
           Positioned(
             top: 0,
             left: 0,
@@ -76,7 +110,53 @@ class _ProcessingPicturePageState extends State<ProcessingPicturePage> {
               ),
             ),
           ),
+          if(_pictureData[_selectPictureData].videoPath != null && _videoControllers[_selectPictureData] != null)
+            Positioned(
+              top: 0,
+              left: 0,
+              height: MediaQuery.of(context).size.height -  MediaQuery.of(context).size.height/3,
+              width: MediaQuery.of(context).size.width,
+              child: AspectRatio(
+                aspectRatio: _videoControllers[0].value.aspectRatio,
+                child: VideoPlayer(_videoControllers[_selectPictureData]),
+              ),
+            ),
           //撮影で撮ったやつの一覧
+          if(_pictureData[_selectPictureData].videoPath != null && _videoControllers[_selectPictureData] != null)
+            Positioned(
+              top: 100,
+              right: 10,
+              height: 54,
+              width: 54,
+              child: GestureDetector(
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.3)
+                  ),
+                  child: Center(
+                    child: _videoControllers[_selectPictureData].value.volume != 0.0 ?
+                        Icon(Icons.volume_up_outlined, size: 24.0, color: Colors.white,):
+                        Icon(Icons.volume_off_outlined, size: 24.0, color: Colors.white,)
+                    ,
+                  ),
+                ),
+                onTap: (){
+                  if(_videoControllers[_selectPictureData].value.volume != 0.0){
+                    _pictureData[_selectPictureData].volumeFlag = false;
+                    setState(() {
+                      _videoControllers[_selectPictureData].setVolume(0.0);
+                    });
+                  }else{
+                    _pictureData[_selectPictureData].volumeFlag = true;
+                    setState(() {
+                      _videoControllers[_selectPictureData].setVolume(1.0);
+                    });
+                  }
+                  context.read<PictureDataProvider>().addPictureData(_pictureData[_selectPictureData], _selectPictureData);
+                },
+              ),
+            ),
           Positioned(
             bottom: MediaQuery.of(context).size.height/3,
             left: 0,
@@ -192,6 +272,13 @@ class _ProcessingPicturePageState extends State<ProcessingPicturePage> {
     );
   }
 
+  imgLib.Image grayscaleAlpha(imgLib.Image image) {
+    // Make sure the image uses the alpha channel.
+    image.channels = imgLib.Channels.rgba;
+    // Map the luminance (grayscale) of the image to the alpha channel.
+    return imgLib.remapColors(image, alpha: imgLib.Channel.luminance);
+  }
+
   Widget _buildThumbnailWidget(int index, context){
     return GestureDetector(
       child: Container(
@@ -216,9 +303,20 @@ class _ProcessingPicturePageState extends State<ProcessingPicturePage> {
         Container(),
       ),
       onTap: (){
-        setState(() {
-          _selectPictureData = index;
-        });
+        if(_pictureData[index].picturePath != null){
+          if(_pictureData[_selectPictureData].videoFlag && _videoControllers[_selectPictureData] != null){
+            _videoControllers[_selectPictureData].pause();
+            setState(() {
+
+            });
+          }
+          setState(() {
+            _selectPictureData = index;
+            if(_pictureData[index].videoFlag && _videoControllers[_selectPictureData] != null){
+              _videoControllers[index].play();
+            }
+          });
+        }
       },
     );
   }

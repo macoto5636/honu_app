@@ -7,7 +7,7 @@ class CustomModal{
   CustomModal(this.context) : super();
 
   //表示
-  void showCustomDialog(String title, String content, double height, double width, Widget widget){
+  void showCustomDialog(String title, String content, double height, double width, Widget widget, double contextHeight){
     Navigator.push(
       context,
       ModalOverlay(
@@ -16,7 +16,7 @@ class CustomModal{
             height: height,
             width: width,
             decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20.0)
             ),
             child: Stack(
@@ -52,7 +52,7 @@ class CustomModal{
                   ),
                 ),
                 Positioned(
-                  top: 110,
+                  top: 70,
                   left: 0,
                   width: width,
                   child: Center(
@@ -62,7 +62,7 @@ class CustomModal{
                 Positioned(
                   bottom: 70,
                   left: 0,
-                  height: 50.0,
+                  height: contextHeight,
                   width: width,
                   child: Center(
                     child: Container(

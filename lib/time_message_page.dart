@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:camera/camera.dart';
-import 'package:circular_countdown_timer/circular_countdown_timer.dart';
+import 'package:honu_app/custom_timer_painter/circular_countdown_timer.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -228,6 +228,7 @@ class _TimeMessagePageState extends State<TimeMessagePage>  with WidgetsBindingO
 
     context.read<TimeMessageDataProvider>().addTimeMessageData(TimeMessageData(path,_videoPath));
 
+    Navigator.of(context).pop();
     Navigator.of(context).push(
         MaterialPageRoute(
             builder: (context) => SaveFormPage()
@@ -259,6 +260,7 @@ class _TimeMessagePageState extends State<TimeMessagePage>  with WidgetsBindingO
         trailing: GestureDetector(
           child: const Text("次へ", style: TextStyle(color: Colors.blue, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
           onTap: (){
+            Navigator.of(context).pop();
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => SaveFormPage()
@@ -345,7 +347,7 @@ class _TimeMessagePageState extends State<TimeMessagePage>  with WidgetsBindingO
                           // Height of the Countdown Widget
                           height: 100.0,
                           // // Default Color for Countdown Timer
-                          iniColor: LinearGradient(
+                          shaderColor: LinearGradient(
                             colors: <Color>[
                               Color(0xffffffff),
                               Color(0xffffffff),
@@ -359,17 +361,18 @@ class _TimeMessagePageState extends State<TimeMessagePage>  with WidgetsBindingO
                             ),
                           ),
                           // Filling Color for Countdown Timer
-                          shaderColor: LinearGradient(
+                          color: LinearGradient(
                             colors: <Color>[
+                              Color(0xffFF9882),
                               Color(0xffF28080),
                               Color(0xffFFCD82),
                             ],
                           ).createShader(
                             Rect.fromLTWH(
                               0.0,
-                              0.0,
-                              200.0,
+                              50.0,
                               70.0,
+                              60.0,
                             ),
                           ),
                           // Background Color for Countdown Widget
@@ -451,6 +454,7 @@ class _TimeMessagePageState extends State<TimeMessagePage>  with WidgetsBindingO
                 child: GestureDetector(
                   child: Text("スキップ", style: TextStyle(color: Colors.grey, fontSize: 17.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
                   onTap: (){
+                    Navigator.of(context).pop();
                     Navigator.of(context).push(
                         MaterialPageRoute(
                             builder: (context) => SaveFormPage()
@@ -467,17 +471,121 @@ class _TimeMessagePageState extends State<TimeMessagePage>  with WidgetsBindingO
   }
 
   void _showDialog(){
-    CustomModal(context).showCustomDialog(
-        "未来の自分に　　　　呼びかけよう！",
+    _showdialog(
+        "未来の自分に呼びかけよう！",
         "未来の自分に動画を見に来てもらえるようにビデオメッセージを残しましょう。",
         400.0,
         300.0,
         Container(
-          height: 150.0,
-          width: 150.0,
-          color: Theme.of(context).primaryColor,
-          child: Text("ogrゾーン", style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
-        )
+          height: 200.0,
+          width: 200.0,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("images/time_message_image.png")
+            )
+          ),
+        ),
+        50,
+    );
+  }
+
+  void _showdialog(String title, String content, double height, double width, Widget widget, double contextHeight) async{
+    await showDialog(
+        context: context,
+        builder: (context){
+          return SimpleDialog(
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(32.0))),
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      height: height,
+                      width: width,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20.0)
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                              top: 5,
+                              right: 10,
+                              height: 30.0,
+                              width: 30.0,
+                              child: GestureDetector(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xffF5F6F7)
+                                  ),
+                                  child: Center(
+                                    child: Icon(Icons.clear, size: 20.0, color: Colors.black,),
+                                  ),
+                                ),
+                                onTap: (){Navigator.of(context, rootNavigator: true).pop(context);},
+                              )
+                          ),
+                          Positioned(
+                            top: 10,
+                            left: 0,
+                            height: 100.0,
+                            width: width,
+                            child: Center(
+                              child: Container(
+                                margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                                child: Text(title, style: TextStyle(color: Colors.black, fontSize: 22.0, fontWeight: FontWeight.bold, decoration: TextDecoration.none), textAlign: TextAlign.center,),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 70,
+                            left: 0,
+                            width: width,
+                            child: Center(
+                              child: widget,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 70,
+                            left: 0,
+                            height: contextHeight,
+                            width: width,
+                            child: Center(
+                              child: Container(
+                                margin: EdgeInsets.only(left: 30.0, right: 30.0, bottom: 10.0),
+                                child: Text(content, style: TextStyle(color: Colors.black, fontSize: 12.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none), textAlign: TextAlign.center,),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 20,
+                            left: 0,
+                            width: width,
+                            child: Center(
+                                child: Container(
+                                  width: 180,
+                                  height: 40.0,
+                                  child: RaisedButton(
+                                    child: Text("閉じる", style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.normal, decoration: TextDecoration.none)),
+                                    color: Theme.of(context).primaryColor,
+                                    shape: const StadiumBorder(),
+                                    onPressed: (){
+                                      Navigator.of(context, rootNavigator: true).pop(context);
+                                    },
+                                  ),
+                                )
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+        }
     );
   }
 }

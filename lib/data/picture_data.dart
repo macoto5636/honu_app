@@ -7,12 +7,14 @@ class PictureData{
   bool videoFlag;
   String videoPath;
   bool takeFlag;
+  bool volumeFlag;
 
-  PictureData(this.picturePath, this.videoFlag, this.videoPath, this.takeFlag);
+  PictureData(this.picturePath, this.videoFlag, this.videoPath, this.takeFlag, this.volumeFlag);
 }
 
+
 class PictureDataProvider extends ChangeNotifier{
-  List<PictureData> _pictureData = [PictureData(null, false, null, false),PictureData(null, false, null, false),PictureData(null, false, null, false),PictureData(null, false, null, false),PictureData(null, false, null, false)];
+  List<PictureData> _pictureData = [PictureData(null, false, null, false, true),PictureData(null, false, null, false, true),PictureData(null, false, null, false, true),PictureData(null, false, null, false, true),PictureData(null, false, null, false, true)];
   int _pictureNum = 0;
 
   List<PictureData> get pictureData => _pictureData;
@@ -31,7 +33,7 @@ class PictureDataProvider extends ChangeNotifier{
   }
 
   void removePictureData(int index) {
-    _pictureData[index] = PictureData(null, false, null, false);
+    _pictureData[index] = PictureData(null, false, null, false, true);
     _pictureData.sort((a,b) => a.picturePath == null? 1: 0);
   }
 
@@ -41,7 +43,7 @@ class PictureDataProvider extends ChangeNotifier{
 
   void clearPictureData(){
     for(int i=0; i<5; i++){
-      _pictureData[i] = PictureData(null, false, null, false);
+      _pictureData[i] = PictureData(null, false, null, false, true);
     }
     _pictureNum = 0;
   }

@@ -58,6 +58,7 @@ class _MemoryAddPageState extends State<MemoryAddPage> {
                 onTap: (){
                   context.read<PictureDataProvider>().clearPictureData();
                   Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                 },
               )
           ),
