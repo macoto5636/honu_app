@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 
-import 'package:honu_app/with_people_data.dart';
+import 'package:honu_app/data/with_people_data.dart';
 import 'package:honu_app/network/api.dart';
 
 class WithPeoplePage extends StatefulWidget {
@@ -73,7 +73,6 @@ class _WithPeoplePageState extends State<WithPeoplePage> {
       };
 
       print(data.toString());
-
       http.Response res = await Network().postData(data, "friend/store");
       print("result" + res.body.toString());
 

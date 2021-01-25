@@ -30,7 +30,7 @@ class PeopleData extends ChangeNotifier{
 
   void clearPeople(){
     _peopleData.clear();
-    notifyListeners();
+
   }
 
 }
