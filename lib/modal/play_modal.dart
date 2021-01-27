@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:honu_app/other_video_play_page.dart';
 import 'package:honu_app/modal/modal_overlay.dart';
@@ -65,11 +66,10 @@ class PlayModal {
                     left: 0,
                     width: width,
                     height: 120,
-                    child: Container(
-                      height: 120,
-                      margin: EdgeInsets.only(left: 20.0, right: 20.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Center(
+                      child:  Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
                             height: 76.0,
@@ -83,22 +83,22 @@ class PlayModal {
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                           ),
-                          Expanded(
-                            child: Container(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Flexible(
-                                    child: Container(
-                                      child: _richText("タイトル", title),
-                                    ),
+                          Container(
+                            height: 76.0,
+                            width: 180.0,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Flexible(
+                                  child: Container(
+                                    child: _richText("タイトル", title),
                                   ),
-                                  _richText("ユーザー", user),
-                                  _richText("時期", uploadDateTime.year.toString() + "." + uploadDateTime.month.toString().padLeft(2,"0") + "." + uploadDateTime.day.toString().padLeft(2,"0") )
-                                ],
-                              ),
+                                ),
+                                _richText("ユーザー", user),
+                                _richText("時期", uploadDateTime.year.toString() + "." + uploadDateTime.month.toString().padLeft(2,"0") + "." + uploadDateTime.day.toString().padLeft(2,"0") )
+                              ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),

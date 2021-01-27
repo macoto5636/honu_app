@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 class Network{
 
-  String _url = 'http://192.168.1.17:8000/api/';
+  String _url = 'http://54.88.211.18/api/';
   //String _url = 'http://localhost:8000/api/';
 
   static var token;
