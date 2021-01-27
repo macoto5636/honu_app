@@ -297,7 +297,7 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
     }
 
     try {
-      await _cameraController.takePicture(filePath);
+     await _cameraController.takePicture(filePath);
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
@@ -396,7 +396,7 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
             return Positioned(
               bottom: 0,
               left: 0,
-              //height:  MediaQuery.of(context).size.height,
+              height:  MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: Container(
                 color: Colors.black,
@@ -521,9 +521,9 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
                 ),
                 //写真撮影(タップ時)
                 onTap: (){
-                  if(_cameraController != null && _cameraController.value.isInitialized && !_cameraController.value.isRecordingVideo){
-                    onTakePictureButtonPressed();
-                  }
+                  // if(_cameraController != null && _cameraController.value.isInitialized && !_cameraController.value.isRecordingVideo){
+                  //   onTakePictureButtonPressed();
+                  // }
                 },
                 //録画開始(長押し時)
                 onLongPressStart:(details){

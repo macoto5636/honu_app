@@ -1,4 +1,5 @@
 import 'package:badges/badges.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:honu_app/components/myMemoryPart.dart';
 import 'package:provider/provider.dart';
@@ -269,6 +270,7 @@ class _MainMapPageState extends State<MainMapPage> with TickerProviderStateMixin
             position: locate,
             icon: _memoryPoint,
             onTap: () async{
+              //String origin = "35.6829593,139.6845327";
               String origin = _currentLocal.latitude.toString() + "," + _currentLocal.longitude.toString();
               String destination = _otherMemoryList[i].memoryLatitude.toString() + "," + _otherMemoryList[i].memoryLongitude.toString();
               print("あああ" + origin + ", " + destination);
@@ -277,7 +279,6 @@ class _MainMapPageState extends State<MainMapPage> with TickerProviderStateMixin
               bool flg = true;
               if(data[0] == null){
                 print("距離：" + data[0]);
-
                 if(data[0].contains("km")){
                   double test = double.parse(data[0].substring(0, data[0].indexOf("km")));
                   print(test);
@@ -421,7 +422,7 @@ class _MainMapPageState extends State<MainMapPage> with TickerProviderStateMixin
                       ),
                     ),
                     Positioned(
-                      bottom: MediaQuery.of(context).size.height/8,
+                      bottom: 80,
                       left: 0,
                       height: MediaQuery.of(context).size.height / 3,
                       width: MediaQuery.of(context).size.width,
@@ -495,7 +496,7 @@ class _MainMapPageState extends State<MainMapPage> with TickerProviderStateMixin
                       ),
                     ),
                     Positioned(
-                      bottom: MediaQuery.of(context).size.height/8 + 230,
+                      bottom: MediaQuery.of(context).size.height/8 + 210,
                       right: 10.0,
                       height: 50,
                       width: 50,
@@ -855,15 +856,16 @@ class _MainMapPageState extends State<MainMapPage> with TickerProviderStateMixin
                         ),
                       ),
                       Positioned(
-                        top: 100,
+                        top: 80,
                         left: 0,
                         width: width,
                         height: 120,
-                        child: Container(
-                          height: 120,
-                          margin: EdgeInsets.only(left: 20.0, right: 20.0),
+                        // child: Container(
+                        //   height: 120,
+                        //   margin: EdgeInsets.only(left: 20.0, right: 20.0),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
                                 height: 76.0,
@@ -877,25 +879,27 @@ class _MainMapPageState extends State<MainMapPage> with TickerProviderStateMixin
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
                               ),
-                              Expanded(
-                                child: Container(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Flexible(
-                                        child: Container(
-                                          child: _richText("タイトル", title),
-                                        ),
+                              Container(
+                                margin: EdgeInsets.only(left: 20.0),
+                                height: 76.0,
+                                //width: 100.0,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Flexible(
+                                      child: Container(
+                                        child: _richText("タイトル", title),
                                       ),
-                                      _richText("ユーザー", user),
-                                      _richText("時期", uploadDateTime.year.toString() + "." + uploadDateTime.month.toString().padLeft(2,"0") + "." + uploadDateTime.day.toString().padLeft(2,"0") )
-                                    ],
-                                  ),
+                                    ),
+                                    _richText("ユーザー", user),
+                                    _richText("時期", uploadDateTime.year.toString() + "." + uploadDateTime.month.toString().padLeft(2,"0") + "." + uploadDateTime.day.toString().padLeft(2,"0") )
+                                  ],
                                 ),
-                              )
+                              ),
                             ],
                           ),
-                        ),
+                        //),
                       ),
                       Positioned(
                         bottom: 20,
