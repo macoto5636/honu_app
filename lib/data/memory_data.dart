@@ -1,3 +1,6 @@
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+
 class MemoryData{
   int memoryId;
   String memoryTitle;
@@ -35,4 +38,58 @@ class MemoryData{
       this.scheduledDate
   );
 
+}
+
+class MyMemoryProvider extends ChangeNotifier{
+  List<MemoryData> _myMemoryList = [];
+
+  List<MemoryData> get myMemoryList => _myMemoryList;
+
+  MemoryData getMyMemoryList(int index){
+    return _myMemoryList[index];
+  }
+
+  void addMyMemory(MemoryData memory){
+    _myMemoryList.add(memory);
+    notifyListeners();
+  }
+
+  void addMyMemoryList(List<MemoryData> memories){
+    memories.forEach((element) {
+      _myMemoryList.add(element);
+    });
+    notifyListeners();
+  }
+
+  void clearMyMemoryList(){
+    _myMemoryList.clear();
+    notifyListeners();
+  }
+}
+
+class OtherMemoryProvider extends ChangeNotifier{
+  List<MemoryData> _otherMemoryList = [];
+
+  List<MemoryData> get otherMemoryList => _otherMemoryList;
+
+  MemoryData getMyMemoryList(int index){
+    return _otherMemoryList[index];
+  }
+
+  void addMyMemory(MemoryData memory){
+    _otherMemoryList.add(memory);
+    notifyListeners();
+  }
+
+  void addMyMemoryList(List<MemoryData> memories){
+    memories.forEach((element) {
+      _otherMemoryList.add(element);
+    });
+    notifyListeners();
+  }
+
+  void clearMyMemoryList(){
+    _otherMemoryList.clear();
+    notifyListeners();
+  }
 }
