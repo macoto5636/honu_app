@@ -10,28 +10,12 @@ import 'package:location/location.dart' as locate;
 import 'package:honu_app/network/api.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:honu_app/config_page.dart';
-import 'data/with_people_data.dart';
-import 'package:honu_app/data/picture_data.dart';
-import 'package:honu_app/data/cameraData.dart';
-import 'memory_add_page.dart';
 import 'package:honu_app/components/othersMemoryCard.dart';
 import 'package:honu_app/memory_details_page.dart';
-import 'package:honu_app/modal/custom_modal.dart';
-import 'package:camera/camera.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:honu_app/modal/play_modal.dart';
-import 'package:honu_app/notice_page.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:image/image.dart' as img;
-import 'dart:ui' as ui;
 import 'package:honu_app/network/direction_api.dart';
 import 'dart:core';
-import 'package:honu_app/login_check_page.dart';
 import 'package:honu_app/other_video_play_page.dart';
-import 'package:honu_app/config_page.dart';
-import 'package:honu_app/notice_page.dart';
-import 'empty_page.dart';
 import 'package:honu_app/data/memory_data.dart';
 
 class MainMapPage extends StatefulWidget {
@@ -218,7 +202,7 @@ class _MainMapPageState extends State<MainMapPage> with TickerProviderStateMixin
   }
 
   //思い出データ取得
-  void _getOtherMemoryData() async{
+  Future<void> _getOtherMemoryData() async{
     _otherMemoryList.clear();
     _markers.clear();
 
