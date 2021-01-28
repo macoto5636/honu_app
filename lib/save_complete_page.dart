@@ -112,6 +112,7 @@ class _SaveCompletePageState extends State<SaveCompletePage> {
       ),
       child: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
               child: Container(
@@ -128,7 +129,7 @@ class _SaveCompletePageState extends State<SaveCompletePage> {
             ),
             for(int i=0; i<_shopData.length; i++)
               Padding(
-                padding: EdgeInsets.only(bottom: 20.0),
+                padding: EdgeInsets.only(bottom: 20.0,left: 20.0),
                 child: _buildShopBox(_shopData[i], 330, MediaQuery.of(context).size.width - 50, _directionShop[i]),
               ),
 

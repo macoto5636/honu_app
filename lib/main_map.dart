@@ -467,7 +467,7 @@ class _MainMapPageState extends State<MainMapPage> with TickerProviderStateMixin
                                             child: GestureDetector(
                                               child: OthersMemoryCard(
                                                 memoryTitle: _otherMemoryList[i].memoryTitle,
-                                                postedDateTime: _otherMemoryList[i].notificationDate,
+                                                postedDateTime: _otherMemoryList[i].scheduledDate,
                                                 goodNum: _otherMemoryList[i].goodNum,
                                                 //imagePath: "images/penguin.jpg",
                                                 imagePath: _otherMemoryList[i].imagePath,

@@ -16,7 +16,7 @@ class MyMemoryPart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 10.0),
+      margin: EdgeInsets.only(top: 10.0,left: 10.0, right: 10.0),
       height: 70.0,
       width: 350.0,
       child: Row(
@@ -32,35 +32,37 @@ class MyMemoryPart extends StatelessWidget {
                 )
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 10.0, top: 10.0),
-                child: Text(
-                  memoryTitle,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, ),
-                  overflow: TextOverflow.ellipsis,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 10.0, top: 10.0),
+                  child: Text(
+                    memoryTitle,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 10.0, top: 4.0),
-                child: Text(
-                  address,
-                  style: TextStyle(fontSize: 14, color: Color(0xffADADAD)),
-                  overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: EdgeInsets.only(left: 10.0, top: 4.0),
+                  child: Text(
+                    address,
+                    style: TextStyle(fontSize: 14, color: Color(0xffADADAD)),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 10.0, top: 10.0),
-                width: 280,
-                child: Divider(
-                  color: Color(0xffADADAD),
-                  height: 1,
-                  thickness: 0,
-                ),
-              )
-            ],
+                Container(
+                  margin: EdgeInsets.only(left: 10.0, top: 10.0,),
+                  width: 280,
+                  child: Divider(
+                    color: Color(0xffADADAD),
+                    height: 1,
+                    thickness: 0,
+                  ),
+                )
+              ],
+            ),
           )
         ],
       ),
