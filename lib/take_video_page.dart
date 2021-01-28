@@ -396,7 +396,7 @@ class _TakeVideoPageState extends State<TakeVideoPage> with WidgetsBindingObserv
             return Positioned(
               bottom: 0,
               left: 0,
-              height:  MediaQuery.of(context).size.height,
+              //height:  MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: Container(
                 color: Colors.black,
